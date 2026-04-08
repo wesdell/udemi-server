@@ -56,8 +56,7 @@ const userCourseProgressSchema = new Schema(
   }
 );
 
-const UserCourseProgress = model(
+export const UserCourseProgress = model(
   "UserCourseProgress",
   userCourseProgressSchema
 );
-export default UserCourseProgress;
