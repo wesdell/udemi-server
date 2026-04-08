@@ -13,7 +13,7 @@ export const GetCourses = async (req: Request, res: Response): Promise<void> => 
       .status(200)
       .json({
         message: "Courses retrieve successfully",
-        courses
+        data: courses
       });
   } catch (error) {
     res
@@ -40,7 +40,7 @@ export const GetCourse = async (req: Request, res: Response): Promise<void> => {
       .status(200)
       .json({
         message: "Course retrieve successfully",
-        course
+        data: course
       });
   } catch (error) {
     res
