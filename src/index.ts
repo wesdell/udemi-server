@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
@@ -5,12 +7,14 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import * as dynamoose from "dynamoose";
-import { createClerkClient } from "@clerk/express";
+import { clerkMiddleware, createClerkClient } from '@clerk/express';
 
 import courseRouter from "./routes/CourseRoutes";
 import clerkUserRouter from "./routes/ClerkUserRoutes";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(__dirname, ".env")
+});
 
 const isProduction = process.env.NODE_ENV === "production";
 if (!isProduction) {
@@ -18,7 +22,8 @@ if (!isProduction) {
 }
 
 export const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY || ""
+  secretKey: process.env.CLERK_SECRET_KEY!,
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY!
 });
 
 const app = express();
@@ -34,6 +39,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(cors());
+
+app.use(clerkMiddleware());
 
 // Routes
 app.get("/", (_, res) => {

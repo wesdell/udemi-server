@@ -1,7 +1,16 @@
 import { Request, Response } from "express";
+import { getAuth } from "@clerk/express";
+
 import { clerkClient } from "..";
 
 export const updateClerkUser = async (req: Request, res: Response): Promise<void> => {
+  const auth = getAuth(req);
+
+  if (!auth.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
   const { userId } = req.params;
   const userData = req.body;
 
