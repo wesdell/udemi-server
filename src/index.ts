@@ -5,8 +5,10 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import * as dynamoose from "dynamoose";
+import { createClerkClient } from "@clerk/express";
 
 import courseRouter from "./routes/CourseRoutes";
+import clerkUserRouter from "./routes/ClerkUserRoutes";
 
 dotenv.config();
 
@@ -14,6 +16,10 @@ const isProduction = process.env.NODE_ENV === "production";
 if (!isProduction) {
   dynamoose.aws.ddb.local();
 }
+
+export const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY || ""
+});
 
 const app = express();
 
@@ -35,9 +41,10 @@ app.get("/", (_, res) => {
 });
 
 app.use("/courses", courseRouter);
+app.use("/users/clerk", clerkUserRouter);
 
 // Server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8001;
 
 if (!isProduction) {
   app.listen(port, () => {
