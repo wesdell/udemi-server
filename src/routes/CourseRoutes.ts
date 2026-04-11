@@ -5,6 +5,7 @@ import { GetCourse, GetCourses } from '../controllers/CourseController';
 const router = express.Router();
 
 router.get("/", GetCourses);
-router.get("/", GetCourse);
+router.get("/:courseId", GetCourse);
+
 
 export default router;
