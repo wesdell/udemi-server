@@ -11,6 +11,7 @@ import { clerkMiddleware, createClerkClient } from '@clerk/express';
 
 import courseRouter from "./routes/CourseRoutes";
 import clerkUserRouter from "./routes/ClerkUserRoutes";
+import transactionRouter from "./routes/TransactionRoutes";
 
 dotenv.config({
   path: path.resolve(__dirname, ".env")
@@ -49,6 +50,7 @@ app.get("/", (_, res) => {
 
 app.use("/courses", courseRouter);
 app.use("/users/clerk", clerkUserRouter);
+app.use("/transactions", transactionRouter);
 
 // Server
 const port = process.env.PORT || 8001;
