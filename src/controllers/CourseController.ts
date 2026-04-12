@@ -151,7 +151,7 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
         ? JSON.parse(updatedCourse.sections)
         : updatedCourse.sections;
 
-      updatedCourse.sections = updatedCourse.sections.map((section: any) => ({
+      updatedCourse.sections = sections.map((section: any) => ({
         ...section,
         sectionId: section.sectionId || uuidv4(),
         chapters: section.chapters.map((chapter: any) => ({
