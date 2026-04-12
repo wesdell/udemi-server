@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Course } from "../models";
 
-export const GetCourses = async (req: Request, res: Response): Promise<void> => {
+export const getCourses = async (req: Request, res: Response): Promise<void> => {
   const { category } = req.query;
 
   try {
@@ -22,7 +22,7 @@ export const GetCourses = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const GetCourse = async (req: Request, res: Response): Promise<void> => {
+export const getCourse = async (req: Request, res: Response): Promise<void> => {
   const { courseId } = req.params;
 
   try {
