@@ -11,6 +11,37 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+export const getTransactions = async (req: Request, res: Response): Promise<void> => {
+  const auth = getAuth(req);
+
+  if (!auth.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const { userId } = req.query;
+
+  try {
+    const transactions = userId
+      ? await Transaction.query("userId").eq(userId).exec()
+      : await Transaction.scan().exec();
+
+    res
+      .status(200)
+      .json({
+        message: "Transaction retrieved successfully",
+        data: transactions
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error retrieving transactions",
+        error
+      });
+  }
+};
+
 export const createStripePaymentIntent = async (req: Request, res: Response): Promise<void> => {
   const auth = getAuth(req);
 
