@@ -2,14 +2,10 @@ import path from "node:path";
 
 import { Response, Request } from "express";
 import Stripe from "stripe";
-import dotenv from "dotenv";
 import { getAuth } from "@clerk/express";
+import { Course, Transaction, UserCourseProgress } from "../models";
 
-dotenv.config({
-  path: path.resolve(__dirname, "../.env")
-});
-
-if (process.env.STRIPE_SECRET_KEY!) {
+if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Stripe secret key is required but was not found");
 }
 
@@ -51,6 +47,73 @@ export const createStripePaymentIntent = async (req: Request, res: Response): Pr
       .status(500)
       .json({
         message: "Error creating stripe payment intent",
+        error
+      });
+  }
+};
+
+export const createTransaction = async (req: Request, res: Response): Promise<void> => {
+  const auth = getAuth(req);
+
+  if (!auth.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const { userId, courseId, transactionId, amount, paymentProvider } = req.body;
+
+  try {
+    const course = await Course.get(courseId);
+
+    const newTransaction = new Transaction({
+      dateTime: new Date().toISOString(),
+      userId,
+      courseId,
+      transactionId,
+      amount,
+      paymentProvider
+    });
+    await newTransaction.save();
+
+    const initialProgress = new UserCourseProgress({
+      userId,
+      courseId,
+      enrollmentDate: new Date().toISOString(),
+      overallProgress: 0,
+      sections: course.sections.map((section: any) => ({
+        sectionId: section.sectionId,
+        chapters: section.chapters.map((chapter: any) => ({
+          chapterId: chapter.chapterId,
+          completed: false
+        }))
+      })),
+      lastAccessedTimestamp: new Date().toISOString()
+    });
+    await initialProgress.save();
+
+    await Course.update(
+      { courseId },
+      {
+        $ADD: {
+          enrollments: [{ userId }]
+        }
+      }
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "Purchase course successfully",
+        data: {
+          transaction: newTransaction,
+          courseProgress: initialProgress
+        }
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error creating transaction and enrrollment",
         error
       });
   }

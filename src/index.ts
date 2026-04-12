@@ -1,7 +1,11 @@
 import path from "node:path";
 
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config({
+  path: path.resolve(__dirname, ".env")
+});
+
+import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
@@ -12,10 +16,6 @@ import { clerkMiddleware, createClerkClient } from '@clerk/express';
 import courseRouter from "./routes/CourseRoutes";
 import clerkUserRouter from "./routes/ClerkUserRoutes";
 import transactionRouter from "./routes/TransactionRoutes";
-
-dotenv.config({
-  path: path.resolve(__dirname, ".env")
-});
 
 const isProduction = process.env.NODE_ENV === "production";
 if (!isProduction) {
