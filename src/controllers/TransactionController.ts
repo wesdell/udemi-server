@@ -66,7 +66,7 @@ export const createStripePaymentIntent = async (req: Request, res: Response): Pr
     });
 
     res
-      .status(200)
+      .status(201)
       .json({
         message: "",
         data: {
@@ -132,7 +132,7 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
     );
 
     res
-      .status(200)
+      .status(201)
       .json({
         message: "Purchase course successfully",
         data: {
