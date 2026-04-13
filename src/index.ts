@@ -13,9 +13,12 @@ import morgan from "morgan";
 import * as dynamoose from "dynamoose";
 import { clerkMiddleware, createClerkClient } from '@clerk/express';
 
-import courseRouter from "./routes/CourseRoutes";
-import clerkUserRouter from "./routes/ClerkUserRoutes";
-import transactionRouter from "./routes/TransactionRoutes";
+import {
+  courseRouter,
+  clerkUserRouter,
+  transactionRouter,
+  userCourseProgressRouter,
+} from "./routes";
 
 const isProduction = process.env.NODE_ENV === "production";
 if (!isProduction) {
@@ -51,6 +54,7 @@ app.get("/", (_, res) => {
 app.use("/courses", courseRouter);
 app.use("/users/clerk", clerkUserRouter);
 app.use("/transactions", transactionRouter);
+app.use("/users/course-progress", userCourseProgressRouter);
 
 // Server
 const port = process.env.PORT || 8001;
