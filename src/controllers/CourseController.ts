@@ -1,8 +1,14 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getAuth } from "@clerk/express";
 
 import { Course } from "../models";
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION || "us-east-1",
+});
 
 export const getCourses = async (req: Request, res: Response): Promise<void> => {
   const { category } = req.query;
@@ -218,6 +224,56 @@ export const deleteCourse = async (req: Request, res: Response): Promise<void> =
       .status(500)
       .json({
         message: "Error deleting course",
+        error
+      });
+  }
+};
+
+export const getUploadVideoUrl = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = getAuth(req);
+  if (!userId) {
+    res
+      .status(401)
+      .json({ message: "Unauthorized" });
+    return;
+  }
+
+  const { fileName, fileType } = req.body;
+
+  if (!fileName || !fileType) {
+    res
+      .status(400)
+      .json({ message: "File name and type are required" });
+    return;
+  }
+
+  try {
+    const uniqueId = uuidv4();
+    const s3Key = `videos/${uniqueId}/${fileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME || "",
+      Key: s3Key,
+      ContentType: fileType,
+    });
+
+    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+    const videoUrl = `${process.env.CLOUDFRONT_DOMAIN}/videos/${uniqueId}/${fileName}`;
+
+    res
+      .status(201)
+      .json({
+        message: "Upload URL generated successfully",
+        data: { uploadUrl, videoUrl },
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error generating upload URL",
         error
       });
   }

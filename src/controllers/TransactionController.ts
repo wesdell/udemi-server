@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import { Response, Request } from "express";
 import Stripe from "stripe";
 import { getAuth } from "@clerk/express";
